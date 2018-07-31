@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+
+    <title>Final Project</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+
+    <style>
+
+      body {
+
+        margin: 0px;
+
+        padding: 0px;
+
+        font-family: 'Avenir';
+		
+		background-color: gold; 
+
+      }
+
+
+
+      h1,
+
+      button {
+
+        margin-left: 25px;
+
+        text-align: left;
+
+      }
+
+
+
+      h1 {
+
+        font-size: 25px;
+
+      }
+
+
+
+      button {
+
+        margin-bottom: 25px;
+
+      }
+
+
+
+      .main {
+
+        margin: 0px 25px;
+
+      }
+
+
+
+      svg {
+
+        padding: 20px 40px;
+
+      }
+
+
+
+      .axis path,
+
+      .axis line {
+
+        fill: none;
+
+        stroke: black;
+
+        shape-rendering: crispEdges;
+
+      }
+
+
+
+      text,
+
+      .axis text {
+
+        font-size: 11px;
+
+      }
+
+
+
+      rect:hover {
+
+        fill: orange;
+
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+<p><a href="index.html">Next</a></p>
+<p><a href="PPG.html">Last</a></p>
+    <h1>FIghting Illini Basketball Slideshow '18</h1>
+	<p>However, the Fighting Illini Defense gives up too many points. Their defense gives up the 3rd most Points Per Game, which is probably why they are #12.</p>
+    <div class="main">
+      <p><span id="city"></span> - <span id="inches"></span></p>
+	      </div>
+    <script type="text/javascript">
+      function render(){
+       var dataset = [
+          {"city": "Michigan", "snow": 63.3},
+          {"city": "Rutger", "snow": 64.8},
+          {"city": "Michigan St.", "snow": 64.9},
+          {"city": "Purdue", "snow": 65.7},
+          {"city": "Wisconsin", "snow": 66},
+		   {"city": "Northwestern", "snow": 66.5},
+		  {"city": "Penn State", "snow": 66.7},
+		   {"city": "Maryland", "snow": 66.9},
+		    {"city": "Ohio St.", "snow": 67.6},
+			{"city": "Nebraska", "snow": 68.6},
+		    {"city": "Indiana", "snow": 70.3},
+			{"city": " Illinois", "snow": 73.8},
+			{"city": "Minnesota", "snow": 75.1},	   
+		    {"city": "Iowa", "snow": 78.7}		  
+        ]
+        // Dimensions for the chart: height, width, and space b/t the bars
+        var margins = {top: 30, right: 50, bottom: 30, left: 50}
+        var height = 400 - margins.left - margins.right,
+            width = 1000 - margins.top - margins.bottom,
+            barPadding = 5
+
+        var yScale = d3.scale.linear()
+
+          .domain([0, d3.max(dataset, function(d){
+
+            return d.snow;
+
+          })])
+
+          .range([height, 0]);
+
+        var yAxis = d3.svg.axis()
+
+          .scale(yScale)
+
+          .orient('left')
+
+          .ticks(5);
+
+
+
+        // Creates a scale for the x-axis based on city names
+
+        var xScale = d3.scale.ordinal()
+
+          .domain(dataset.map(function(d){
+
+            return d.city;
+
+          }))
+
+          .rangeRoundBands([0, width], .1);
+
+
+
+        // Creates an axis based off the xScale properties
+
+        var xAxis = d3.svg.axis()
+
+          .scale(xScale)
+
+          .orient('bottom');
+
+
+
+        // Creates the initial space for the chart
+
+        // >> Select - grabs the empty <div> above this script
+
+        // >> Append - places an <svg> wrapper inside the div
+
+        // >> Attr - applies our height & width values from above
+
+        var chart = d3.select('.main')
+
+          .append('svg')
+
+          .attr('width', width + margins.left + margins.right)
+
+          .attr('height', height + margins.top + margins.bottom)
+
+          .append('g')
+
+          .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
+
+        chart.selectAll('rect')
+
+          .data(dataset)
+
+          .enter()
+
+          .append('rect')
+
+          .attr('x', function(d, i){
+
+            return xScale(d.city);
+
+          })
+
+          .attr('y', function(d){
+
+            return yScale(d.snow);
+
+          })
+
+          .attr('width', (width / dataset.length) - barPadding)
+
+          .attr('height', function(d){
+
+            return height - yScale(d.snow);
+
+          })
+
+          .attr('fill', 'steelblue')
+
+
+
+          // Step 4: Info for hover interaction
+
+          .attr('class', function(d){
+
+            return d.city;
+
+          })
+
+          .attr('id', function(d){
+
+            return d.snow;
+
+          });
+
+
+
+        // Renders the yAxis once the chart is finished
+
+        // >> Moves it to the left 10 pixels so it doesn't overlap
+
+        chart.append('g')
+
+          .attr('class', 'axis')
+
+          .attr('transform', 'translate(-10, 0)')
+
+          .call(yAxis);
+
+
+
+        // Appends the yAxis
+
+        chart.append('g')
+
+          .attr('class', 'axis')
+
+          .attr('transform', 'translate(0,' + (height + 10) + ')')
+
+          .call(xAxis);
+
+
+
+        // Adds yAxis title
+
+        chart.append('text')
+
+          .text('Points Given Up Per Game')
+
+          .attr('transform', 'translate(-70, -20)');
+
+      }
+
+
+
+      $(function(){
+
+        // On document load, call the render() function to load the graph
+
+        render();
+
+
+
+        $('rect').mouseenter(function(){
+
+          $('#city').html(this.className.animVal);
+
+          $('#inches').html($(this).attr('id'));
+
+        });
+
+      });
+
+
+
+    </script>
+
+  </body>
+
+</html>
